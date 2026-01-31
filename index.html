@@ -1,116 +1,784 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>StashVC</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Short description of what this project does." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StashVC - No JWT No CRM API v 0.0.0.1</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --payment: #28a745;
+            --invoice-in: #ffc107;
+            --invoice-out: #007bff;
+            --bg: #f4f7f6;
+            --text: #333;
+            --danger: #d9534f;
+            --accept: #28a745;
+        }
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, sans-serif;
+        }
 
-    .container {
-      max-width: 720px;
-      padding: 2.5rem;
-      text-align: center;
-    }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding-top: 75px;
+            padding-bottom: 80px;
+        }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
+        /* --- Header --- */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: white;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
 
-    p {
-      font-size: 1.1rem;
-      color: #9ca3af;
-      margin-bottom: 2rem;
-    }
+        .app-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+        }
 
-    .buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
+        .bal-amt {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+        }
 
-    a.button {
-      text-decoration: none;
-      padding: 0.75rem 1.25rem;
-      border-radius: 6px;
-      font-weight: 500;
-      transition: background 0.2s ease;
-    }
+        .bal-lab {
+            font-size: 9px;
+            color: #999;
+            font-weight: bold;
+            text-align: right;
+        }
 
-    .primary {
-      background: #22c55e;
-      color: #052e16;
-    }
+        /* --- Layout --- */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
 
-    .primary:hover {
-      background: #16a34a;
-    }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
 
-    .secondary {
-      background: #1e293b;
-      color: #e5e7eb;
-    }
+        h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .secondary:hover {
-      background: #334155;
-    }
+        /* --- Ledger Sub-Tabs --- */
+        .sub-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            background: #eaedf2;
+            padding: 5px;
+            border-radius: 12px;
+        }
 
-    footer {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #6b7280;
-    }
-  </style>
+            .sub-nav button {
+                flex: 1;
+                border: none;
+                background: none;
+                padding: 10px 5px;
+                border-radius: 10px;
+                font-size: 11px;
+                font-weight: bold;
+                cursor: pointer;
+                color: #777;
+                transition: 0.2s;
+            }
+
+                .sub-nav button.active {
+                    background: white;
+                    color: var(--primary);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+        /* --- Forms --- */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #fff;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            background: var(--primary);
+        }
+
+        .btn-action {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+            color: white;
+        }
+
+        /* --- Tables --- */
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+            .ledger-table th {
+                text-align: left;
+                padding: 10px 8px;
+                font-size: 10px;
+                color: #bbb;
+                text-transform: uppercase;
+                border-bottom: 1px solid #eee;
+            }
+
+            .ledger-table td {
+                padding: 15px 8px;
+                border-bottom: 1px solid #f8f8f8;
+            }
+
+        .badge {
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .bg-in {
+            background: var(--invoice-in);
+            color: #856404;
+        }
+
+        .bg-out {
+            background: var(--invoice-out);
+        }
+
+        /* --- Navigation --- */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            height: 75px;
+            border-top: 1px solid #eee;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            border: none;
+            background: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #bbb;
+            cursor: pointer;
+        }
+
+            .nav-item.active {
+                color: var(--primary);
+                font-weight: bold;
+            }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* --- Modals & Toasts --- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 380px;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 3000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .id-card {
+            background: #eef2ff;
+            border: 1px solid var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .pubkey-text {
+            font-family: monospace;
+            font-size: 10px;
+            color: var(--primary);
+            word-break: break-all;
+            display: block;
+            background: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            margin: 8px 0;
+            border: 1px solid #d0d7f7;
+        }
+
+        .tab-content, .ledger-panel {
+            display: none;
+        }
+
+        .active {
+            display: block !important;
+        }
+
+        .flex-active {
+            display: flex !important;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <div class="container">
-    <h1>StashVC - 3rd Payment Systems</h1>
-    <p>
-      Credit transfer without central servers or blockchain. Wallets and nodes. Jan 2026.
-    </p>
 
-    <div class="buttons">
-      <a
-        class="button primary"
-        href="https://github.com/13742X/stashVC"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        View on GitHub
-      </a>
+    <div id="toast" class="toast">Key Copied to Clipboard</div>
 
-      <a
-        class="button secondary"
-        href="https://github.com/13742x/publications/blob/main/2026/2026-No-Server-Exchange-of-Value-Credits-(VCs)-White-Paper.pdf"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Read the White Paper
-      </a>
+    <!-- Auth Modal -->
+    <div id="authOverlay" class="overlay" style="display: flex;">
+        <div class="modal-card">
+            <h2 style="color:var(--primary); justify-content: center; margin-bottom: 10px;">🔐 Wallet Access</h2>
+            <p style="font-size:12px; color:#666; margin-bottom:20px;">Enter your password to unlock your secure vault.</p>
+            <input type="password" id="walletPwd" style="margin-bottom:20px; text-align: center;" placeholder="Enter Password">
+            <button onclick="handleUnlock()" class="btn-submit">Unlock & Initialize</button>
+        </div>
     </div>
 
-    <footer>
-      © 2026  <a
-        class="button secondary"
-        href="https://www.stashvc.com"
-        target="_blank"
-        rel="noopener noreferrer"
-      >StashVC.com</a>
-    </footer>
-  </div>
+    <!-- Generic Message Modal -->
+    <div id="modalOverlay" class="overlay">
+        <div class="modal-card">
+            <h2 id="modalTitle" style="justify-content: center;">Notice</h2>
+            <p id="modalText" style="font-size:14px; margin-bottom:25px; color:#666;"></p>
+            <button onclick="closeModal()" class="btn-submit">Close</button>
+        </div>
+    </div>
+
+    <!-- New Contact Modal -->
+    <div id="contactModal" class="overlay">
+        <div class="modal-card" style="text-align: left;">
+            <h2 style="margin-bottom: 15px;">New Contact</h2>
+            <div class="form-group"><label>FULL NAME</label><input type="text" id="cn-name" placeholder="e.g. John Doe"></div>
+            <div class="form-group"><label>HANDLE</label><input type="text" id="cn-handle" placeholder="e.g. john_v"></div>
+            <div class="form-group"><label>PUBLIC KEY (ECDSA)</label><textarea id="cn-key" rows="3" placeholder="Paste SPKI base64 key here..."></textarea></div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="saveContact()" class="btn-submit">Save</button>
+                <button onclick="closeContactModal()" class="btn-submit" style="background:#ccc;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="app-header">
+        <span class="app-title">StashVC <small style="font-size:10px; color:#bbb; font-weight: 400;">v2.2</small></span>
+        <div>
+            <div class="bal-amt" id="headerBalance">0.00</div>
+            <div class="bal-lab" id="statusLabel">LOCKED</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- TAB: INVOICE -->
+        <div id="tab-request" class="tab-content active">
+            <h2>Send Invoice</h2>
+            <div class="card">
+                <form onsubmit="handleTransaction(event, 'INVOICE')">
+                    <div class="form-group"><label>CLIENT (FROM ADDRESS BOOK)</label><select id="reqContact" class="contact-select" required></select></div>
+                    <div class="form-group"><label>AMOUNT (VC)</label><input type="number" step="0.01" id="reqAmount" required></div>
+                    <div class="form-group"><label>MEMO / NOTE</label><input type="text" id="reqNote"></div>
+                    <button type="submit" class="btn-submit">Sign & Route Invoice</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: PAY -->
+        <div id="tab-pay" class="tab-content">
+            <h2>Direct Payment</h2>
+            <div class="card">
+                <form onsubmit="handleTransaction(event, 'PAYMENT')">
+                    <div class="form-group"><label>RECIPIENT</label><select id="payContact" class="contact-select" required></select></div>
+                    <div class="form-group"><label>AMOUNT</label><input type="number" step="0.01" id="payAmount" required></div>
+                    <button type="submit" class="btn-submit" style="background: var(--payment);">Authorize Payment</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: LEDGER -->
+        <div id="tab-ledger" class="tab-content">
+            <div class="sub-nav">
+                <button class="sub-btn active" onclick="switchLedgerPanel('trans', this)">Transactions</button>
+                <button class="sub-btn" onclick="switchLedgerPanel('cash', this)">Cash</button>
+                <button class="sub-btn" onclick="switchLedgerPanel('owed', this)">Owed</button>
+                <button class="sub-btn" onclick="switchLedgerPanel('due', this)">Due</button>
+            </div>
+
+            <div id="panel-trans" class="ledger-panel active">
+                <div class="card" style="padding:0"><table class="ledger-table"><tbody id="list-trans"></tbody></table></div>
+            </div>
+
+            <div id="panel-cash" class="ledger-panel">
+                <div class="card" style="padding:0">
+                    <table class="ledger-table">
+                        <thead><tr><th>Date</th><th>Person</th><th>Debit (+)</th><th>Credit (-)</th></tr></thead>
+                        <tbody id="list-cash"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="panel-owed" class="ledger-panel">
+                <div class="card" style="padding:0"><table class="ledger-table"><tbody id="list-owed"></tbody></table></div>
+            </div>
+
+            <div id="panel-due" class="ledger-panel">
+                <div class="card" style="padding:0"><table class="ledger-table"><tbody id="list-due"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- TAB: CONTACTS -->
+        <div id="tab-contacts" class="tab-content">
+            <h2>My Identity</h2>
+            <div class="id-card">
+                <label>MY PUBLIC KEY (SHARE THIS)</label>
+                <span id="dispPubKey" class="pubkey-text">Loading...</span>
+                <button onclick="copyKey()" class="btn-submit" style="padding:10px; font-size:12px;">Copy Key to Clipboard</button>
+                <button onclick="resetApp()" style="display:block; margin: 15px auto 0; background:none; border:none; color:#bbb; font-size:10px; cursor:pointer;">Wipe All Local Data</button>
+            </div>
+
+            <h2>Address Book <button onclick="openContactModal()" style="font-size:11px; background:var(--primary); color:white; border:none; padding:5px 12px; border-radius:8px; cursor:pointer;">+ New</button></h2>
+            <div id="contact-list"></div>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <button class="nav-item active" onclick="switchTab('request', this)"><span class="nav-icon">📥</span>Invoice</button>
+        <button class="nav-item" onclick="switchTab('pay', this)"><span class="nav-icon">💸</span>Pay</button>
+        <button class="nav-item" onclick="switchTab('ledger', this)"><span class="nav-icon">📜</span>Ledger</button>
+        <button class="nav-item" onclick="switchTab('contacts', this)"><span class="nav-icon">👤</span>Identity</button>
+    </nav>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const USER_ID = urlParams.get('user') || 'default';
+        const DB_NAME = `StashDB_v2_2_${USER_ID}`;
+
+        let db;
+        let myPubB64 = "";
+
+        /* --- DATABASE ENGINE --- */
+        async function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, 1);
+                req.onupgradeneeded = (e) => {
+                    const d = e.target.result;
+                    d.createObjectStore('keys', { keyPath: 'id' });
+                    d.createObjectStore('contacts', { keyPath: 'handle' });
+                    d.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
+                    d.createObjectStore('cashLedger', { keyPath: 'id', autoIncrement: true });
+                };
+                req.onsuccess = (e) => { db = e.target.result; resolve(); };
+                req.onerror = reject;
+            });
+        }
+
+        async function dbOp(store, mode, method, data = null) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(store, mode);
+                const s = tx.objectStore(store);
+                const req = method === 'getAll' ? s.getAll() :
+                    method === 'get' ? s.get(data) :
+                        method === 'put' ? s.put(data) : s.delete(data);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        /* --- CORE APP LOGIC --- */
+        async function handleUnlock() {
+            const pwd = document.getElementById('walletPwd').value;
+            if (!pwd) return;
+
+            await openDB();
+            let keyData = await dbOp('keys', 'readonly', 'get', 'main');
+
+            if (!keyData) {
+                const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+                const priv = await crypto.subtle.exportKey("pkcs8", pair.privateKey);
+                const pub = await crypto.subtle.exportKey("spki", pair.publicKey);
+                keyData = { id: 'main', priv, pub };
+                await dbOp('keys', 'readwrite', 'put', keyData);
+            }
+
+            myPubB64 = btoa(String.fromCharCode(...new Uint8Array(keyData.pub)));
+            document.getElementById('dispPubKey').innerText = myPubB64;
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('statusLabel').innerText = "ONLINE: " + USER_ID.toUpperCase();
+
+            refreshUI();
+            connectSSE(myPubB64);
+        }
+
+        /* --- Updated handleTransaction to deduct balance immediately for Payments --- */
+        async function handleTransaction(e, type) {
+            e.preventDefault();
+            const handle = (type === 'INVOICE') ? document.getElementById('reqContact').value : document.getElementById('payContact').value;
+            const amount = parseFloat((type === 'INVOICE') ? document.getElementById('reqAmount').value : document.getElementById('payAmount').value);
+            const note = (type === 'INVOICE') ? document.getElementById('reqNote').value : 'Direct Payment';
+
+            if (!handle) return showMsg("Selection Error", "Please select a contact.");
+
+            // Check balance before sending payment
+            const cash = await dbOp('cashLedger', 'readonly', 'getAll');
+            const currentBal = cash.reduce((acc, c) => acc + c.amountDebit - c.amountCredit, 100.00);
+
+            if (type === 'PAYMENT' && amount > currentBal) {
+                return showMsg("Insufficient Funds", `Your balance is ${currentBal.toFixed(2)}, but you are trying to send ${amount.toFixed(2)}.`);
+            }
+
+            const contact = await dbOp('contacts', 'readonly', 'get', handle);
+            const keyData = await dbOp('keys', 'readonly', 'get', 'main');
+            const privKey = await crypto.subtle.importKey('pkcs8', keyData.priv, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
+
+            const txData = { TxType: type, FromId: myPubB64, ToId: contact.publicKey, Amount: amount, Note: note, Timestamp: Date.now(), Nonce: crypto.randomUUID() };
+            const sigBuf = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, privKey, new TextEncoder().encode(JSON.stringify(txData)));
+
+            try {
+                const res = await fetch('/api/transaction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transaction: txData, signature: btoa(String.fromCharCode(...new Uint8Array(sigBuf))), publicKey: myPubB64 })
+                });
+
+                if (!res.ok) throw new Error("Node rejected transaction.");
+                const resData = await res.json();
+
+                // 1. Log the Transaction
+                await dbOp('transactions', 'readwrite', 'put', {
+                    type: type === 'INVOICE' ? 'invoice_out' : 'payment_out',
+                    target: contact.publicKey,
+                    handle: contact.handle,
+                    amount, note, status: 'Pending', nodeId: resData.txId, timestamp: Date.now()
+                });
+
+                // 2. NEW: If it's a PAYMENT, deduct from Cash Ledger immediately
+                if (type === 'PAYMENT') {
+                    await dbOp('cashLedger', 'readwrite', 'put', {
+                        date: new Date().toISOString(),
+                        personHandle: contact.handle,
+                        amountDebit: 0,
+                        amountCredit: amount // This reduces the balance
+                    });
+                }
+
+                e.target.reset();
+                showMsg("Broadcast Successful", "Transaction sent. Outgoing funds deducted from balance.");
+                refreshUI();
+            } catch (err) { showMsg("Failed", err.message); }
+        }
+
+        /* --- Updated settleTx to avoid double-deducting --- */
+        async function settleTx(id) {
+            const tx = await dbOp('transactions', 'readonly', 'get', id);
+            try {
+                const res = await fetch(`/api/settle/${tx.nodeId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ challengeResponse: tx.challenge })
+                });
+
+                if (res.ok) {
+                    tx.status = 'Settled';
+                    await dbOp('transactions', 'readwrite', 'put', tx);
+
+                    // Only add to Cash Ledger if it wasn't already deducted 
+                    // (e.g., Inward payments or Invoices you are paying now)
+                    if (tx.type === 'payment_in' || tx.type === 'invoice_in' || tx.type === 'invoice_out') {
+                        const isDebit = (tx.type === 'payment_in' || tx.type === 'invoice_out');
+                        await dbOp('cashLedger', 'readwrite', 'put', {
+                            date: new Date().toISOString(),
+                            personHandle: tx.handle || 'Unknown',
+                            amountDebit: isDebit ? tx.amount : 0,
+                            amountCredit: isDebit ? 0 : tx.amount
+                        });
+                    }
+
+                    refreshUI();
+                    showMsg("Settled", "Transaction finalized.");
+                }
+            } catch (e) { showMsg("Error", "Network error."); }
+        }
+
+        /* --- Updated UI to hide checkmark on Pending items --- */
+        function renderTransactionsPanel(data) {
+            document.getElementById('list-trans').innerHTML = data.sort((a, b) => b.timestamp - a.timestamp).map(t => {
+                let actionContent = '';
+                if (t.status === 'Settled') {
+                    actionContent = '<span style="color:var(--payment); font-weight:bold;">✓</span>';
+                } else if (t.status === 'Awaiting' && t.challenge) {
+                    actionContent = `<button class="btn-action" style="background:${t.type === 'invoice_in' ? 'var(--danger)' : 'var(--payment)'}" onclick="settleTx(${t.id})">${t.type === 'invoice_in' ? 'PAY' : 'ACCEPT'}</button>`;
+                } else {
+                    actionContent = '<span style="color:#ccc; font-size:10px;">•••</span>'; // Pending/Routing
+                }
+
+                return `<tr>
+            <td><span class="badge ${t.type.includes('in') ? 'bg-in' : 'bg-out'}">${t.type.replace('_', ' ')}</span></td>
+            <td><b>${t.handle}</b><br><small style="color:#bbb">${t.status}</small></td>
+            <td style="text-align:right"><b>${t.amount.toFixed(2)}</b></td>
+            <td style="text-align:right">${actionContent}</td>
+        </tr>`;
+            }).join('') || '<tr><td colspan="4" style="text-align:center; color:#ccc; padding:30px;">Empty History</td></tr>';
+        }
+
+        async function settleTx(id) {
+            const tx = await dbOp('transactions', 'readonly', 'get', id);
+            try {
+                const res = await fetch(`/api/settle/${tx.nodeId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ challengeResponse: tx.challenge })
+                });
+
+                if (res.ok) {
+                    tx.status = 'Settled';
+                    await dbOp('transactions', 'readwrite', 'put', tx);
+
+                    // DEBIT: money comes in. CREDIT: money goes out.
+                    const isDebit = (tx.type === 'payment_in' || tx.type === 'invoice_out');
+                    await dbOp('cashLedger', 'readwrite', 'put', {
+                        date: new Date().toISOString(),
+                        personHandle: tx.handle || 'Unknown',
+                        amountDebit: isDebit ? tx.amount : 0,
+                        amountCredit: isDebit ? 0 : tx.amount
+                    });
+
+                    refreshUI();
+                    showMsg("Settled", "Account has been updated and the ledger entry is finalized.");
+                } else {
+                    const err = await res.json();
+                    showMsg("Settlement Error", err.error || "Failed to settle.");
+                }
+            } catch (e) { showMsg("Error", "Network error connecting to Node."); }
+        }
+
+        /* --- UI RENDERERS --- */
+        async function refreshUI() {
+            const txs = await dbOp('transactions', 'readonly', 'getAll');
+            const cash = await dbOp('cashLedger', 'readonly', 'getAll');
+            const contacts = await dbOp('contacts', 'readonly', 'getAll');
+
+            // Header Balance (Start with 100 for POC)
+            const bal = cash.reduce((acc, c) => acc + c.amountDebit - c.amountCredit, 100.00);
+            document.getElementById('headerBalance').innerText = bal.toFixed(2);
+
+            // Render Sub-Panels
+            renderTransactionsPanel(txs);
+            renderCashPanel(cash);
+            renderFilterPanel('list-owed', txs.filter(t => t.status !== 'Settled' && (t.type === 'payment_in' || t.type === 'invoice_out')));
+            renderFilterPanel('list-due', txs.filter(t => t.status !== 'Settled' && t.type === 'invoice_in'));
+
+            // Refresh Select Menus
+            const selects = document.querySelectorAll('.contact-select');
+            const opts = '<option value="">Choose Contact...</option>' + contacts.map(c => `<option value="${c.handle}">${c.name}</option>`).join('');
+            selects.forEach(s => s.innerHTML = opts);
+
+            // Refresh Contacts List
+            document.getElementById('contact-list').innerHTML = contacts.map(c => `
+                    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div><b>${c.name}</b><br><small style="color:#999">${c.handle}</small></div>
+                        <button onclick="deleteContact('${c.handle}')" style="background:none; border:none; cursor:pointer; font-size:16px;">🗑️</button>
+                    </div>`).join('') || '<div style="text-align:center; color:#ccc; padding:20px;">No contacts saved.</div>';
+        }
+
+        function renderTransactionsPanel(data) {
+            document.getElementById('list-trans').innerHTML = data.sort((a, b) => b.timestamp - a.timestamp).map(t => {
+                const actionBtn = (t.status === 'Awaiting' && t.challenge)
+                    ? `<button class="btn-action ${t.type === 'invoice_in' ? 'btn-pay' : 'btn-accept'}" style="background:${t.type === 'invoice_in' ? 'var(--danger)' : 'var(--payment)'}" onclick="settleTx(${t.id})">${t.type === 'invoice_in' ? 'PAY' : 'ACCEPT'}</button>`
+                    : '✓';
+                return `<tr>
+                        <td><span class="badge ${t.type.includes('in') ? 'bg-in' : 'bg-out'}">${t.type.replace('_', ' ')}</span></td>
+                        <td><b>${t.handle}</b><br><small style="color:#bbb">${t.status}</small></td>
+                        <td style="text-align:right"><b>${t.amount.toFixed(2)}</b></td>
+                        <td style="text-align:right">${actionBtn}</td>
+                    </tr>`;
+            }).join('') || '<tr><td colspan="4" style="text-align:center; color:#ccc; padding:30px;">Empty History</td></tr>';
+        }
+
+        function renderCashPanel(data) {
+            document.getElementById('list-cash').innerHTML = data.map(c => `
+                    <tr>
+                        <td>${new Date(c.date).toLocaleDateString()}</td>
+                        <td><b>${c.personHandle}</b></td>
+                        <td style="color:var(--payment)">${c.amountDebit > 0 ? '+' + c.amountDebit.toFixed(2) : ''}</td>
+                        <td style="color:var(--danger)">${c.amountCredit > 0 ? '-' + c.amountCredit.toFixed(2) : ''}</td>
+                    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center; color:#ccc; padding:30px;">No Settled Cashflow</td></tr>';
+        }
+
+        function renderFilterPanel(elemId, list) {
+            document.getElementById(elemId).innerHTML = list.map(t => `
+                    <tr>
+                        <td><span class="badge ${t.type.includes('in') ? 'bg-in' : 'bg-out'}">${t.type.replace('_', ' ')}</span></td>
+                        <td><b>${t.handle}</b></td>
+                        <td style="text-align:right"><b>${t.amount.toFixed(2)}</b></td>
+                    </tr>`).join('') || '<tr><td colspan="3" style="text-align:center; color:#ccc; padding:30px;">Nothing Pending</td></tr>';
+        }
+
+        /* --- SSE --- */
+        function connectSSE(pk) {
+            const es = new EventSource(`/api/events?pk=${encodeURIComponent(pk)}`);
+            es.addEventListener('tx_received', async (e) => {
+                const d = JSON.parse(e.data);
+                const contacts = await dbOp('contacts', 'readonly', 'getAll');
+                const sender = contacts.find(c => c.publicKey === d.from);
+
+                await dbOp('transactions', 'readwrite', 'put', {
+                    type: d.type === 'INVOICE' ? 'invoice_in' : 'payment_in',
+                    target: d.from,
+                    handle: sender ? sender.handle : 'Unknown',
+                    amount: d.amount, note: d.note, status: 'Awaiting',
+                    nodeId: d.id, challenge: d.challenge, timestamp: Date.now()
+                });
+                refreshUI();
+                showMsg("Incoming", `New ${d.type} received from ${sender ? sender.name : 'an unknown wallet'}.`);
+            });
+            es.onerror = () => { es.close(); setTimeout(() => connectSSE(pk), 5000); };
+        }
+
+        /* --- HELPERS & NAVIGATION --- */
+        function switchTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function switchLedgerPanel(id, btn) {
+            document.querySelectorAll('.ledger-panel').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.sub-btn').forEach(n => n.classList.remove('active'));
+            document.getElementById('panel-' + id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function openContactModal() { document.getElementById('contactModal').classList.add('flex-active'); }
+        function closeContactModal() { document.getElementById('contactModal').classList.remove('flex-active'); }
+
+        async function saveContact() {
+            const name = document.getElementById('cn-name').value;
+            const handle = document.getElementById('cn-handle').value;
+            const publicKey = document.getElementById('cn-key').value;
+            if (!name || !handle || !publicKey) return;
+            await dbOp('contacts', 'readwrite', 'put', { name, handle, publicKey: publicKey.trim() });
+            document.getElementById('cn-name').value = ''; document.getElementById('cn-handle').value = ''; document.getElementById('cn-key').value = '';
+            closeContactModal();
+            refreshUI();
+        }
+
+        async function deleteContact(h) {
+            if (!confirm(`Remove ${h} from contacts?`)) return;
+            await dbOp('contacts', 'readwrite', 'delete', h);
+            refreshUI();
+        }
+
+        function showMsg(title, text) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
+            document.getElementById('modalOverlay').classList.add('flex-active');
+        }
+        function closeModal() { document.getElementById('modalOverlay').classList.remove('flex-active'); }
+
+        function copyKey() {
+            navigator.clipboard.writeText(myPubB64);
+            const t = document.getElementById('toast');
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function resetApp() { if (confirm("This will permanently delete your keys and local ledger history. Continue?")) { indexedDB.deleteDatabase(DB_NAME); location.reload(); } }
+    </script>
 </body>
 </html>
