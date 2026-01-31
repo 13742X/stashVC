@@ -1,11 +1,11 @@
-#Index.html
+# Index.html
 StashVC - No JWT No CRM API v 0.0.0.1
 
 Basic Purse. 
 No JWT callback.
 CRM and ledger stored locally.
 
-#Next Version
+# Next Version
 1.Callback JWT
 2.Api to CRM (Google sheet / new app)
 3.Ledger (Api to new ledger app)
